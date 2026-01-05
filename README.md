@@ -43,3 +43,26 @@ If you need to change the API URL, check `src/api/axiosConfig.js` or the `.env` 
 ```javascript
 // Default configuration in axiosConfig.js
 baseURL: "http://localhost:5012/api"
+
+### Running the App
+Start the develpment server:
+```bash
+npm run dev
+```
+Open your browser at `http://localhost:5173` (or the port shown in your terminal)
+
+## 📄 License
+
+MIT License
+
+---
+
+## 👤 Author
+
+**Name:** Miguel Angel Angarita
+**Project:** Assessment_M6 - Courses & Lessons Management System
+**Date:** January 2026
+
+---
+
+> "Good code is like good espresso: concentrated, powerful, and best served hot." — J.A.R.V.I.S.
