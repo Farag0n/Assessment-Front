@@ -4,15 +4,14 @@ import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useContext } from 'react';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import Lessons from './pages/Lessons'; // <--- IMPORTAR LA VISTA QUE CREAREMOS AHORA
 
-// Componente para proteger rutas privadas
 const PrivateRoute = ({ children }) => {
-    const { user } = useContext(AuthContext);
+    const { user, loading } = useContext(AuthContext);
+    if (loading) return <div>Cargando...</div>;
     return user ? children : <Navigate to="/" />;
 };
-
-// Placeholder para el Dashboard (lo haremos en el siguiente paso)
-const Dashboard = () => <h1 className="text-center mt-5">Bienvenido a los Cursos (En construcción)</h1>;
 
 function App() {
   return (
@@ -20,6 +19,9 @@ function App() {
         <Router>
             <Routes>
                 <Route path="/" element={<Login />} />
+                <Route path="/register" element={<Register />} /> 
+                
+                {/* Ruta Dashboard */}
                 <Route 
                     path="/courses" 
                     element={
@@ -28,27 +30,14 @@ function App() {
                         </PrivateRoute>
                     } 
                 />
-            </Routes>
-        </Router>
-    </AuthProvider>
-  );
-}
 
-function App() {
-  return (
-    <AuthProvider>
-        <Router>
-            <Routes>
-                <Route path="/" element={<Login />} />
-                
-                {/* AGREGAR RUTA DE REGISTRO */}
-                <Route path="/register" element={<Register />} /> 
-
+                {/* NUEVA RUTA: Gestión de Lecciones */}
+                {/* :courseId es un parámetro dinámico que usaremos para saber qué curso cargar */}
                 <Route 
-                    path="/courses" 
+                    path="/course/:courseId/lessons" 
                     element={
                         <PrivateRoute>
-                            <Dashboard />
+                            <Lessons />
                         </PrivateRoute>
                     } 
                 />
