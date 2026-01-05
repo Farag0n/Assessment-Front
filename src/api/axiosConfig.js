@@ -2,13 +2,14 @@
 import axios from 'axios';
 
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    // CAMBIO CRÍTICO: Escribimos la URL directamente para asegurar que no falle
+    baseURL: "http://localhost:5012/api", 
     headers: {
         'Content-Type': 'application/json'
     }
 });
 
-// Interceptor: Antes de cada petición, inyecta el token si existe
+// ... el resto de tu código de interceptores déjalo igual ...
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
@@ -20,13 +21,12 @@ api.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Interceptor: Si el token expiró (401), limpia y redirige al login
 api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
             localStorage.removeItem('token');
-            window.location.href = '/'; // Redirige al login
+            window.location.href = '/'; 
         }
         return Promise.reject(error);
     }
