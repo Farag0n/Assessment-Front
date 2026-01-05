@@ -1,9 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
-import { Container, Table, Button, Badge, Row, Col, Alert, Pagination } from 'react-bootstrap';
+import { Container, Table, Button, Badge, Row, Col, Alert, Pagination, Card } from 'react-bootstrap';
 import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 import CourseModal from '../components/CourseModal';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from "jwt-decode"; // <--- Importante para leer el rol
 
 const Dashboard = () => {
     const [courses, setCourses] = useState([]);
@@ -12,7 +13,7 @@ const Dashboard = () => {
     
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    const pageSize = 5;
+    const pageSize = 5; // Puedes subir esto a 10 si quieres ver más datos para las métricas
 
     const [showModal, setShowModal] = useState(false);
     const [editingCourse, setEditingCourse] = useState(null);
@@ -20,10 +21,25 @@ const Dashboard = () => {
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
+    // --- LÓGICA DE ROL (PUNTO EXTRA) ---
+    const token = localStorage.getItem('token');
+    let isAdmin = false;
+    if (token) {
+        try {
+            const decoded = jwtDecode(token);
+            // El backend suele enviar el rol en "role" o en una URL de esquema xml
+            const role = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
+            // Asumimos que 0 es Admin (según tu Register.jsx) o el string "Admin"
+            isAdmin = role === 0 || role === "0" || role === "Admin";
+        } catch (e) {
+            console.error("Error al leer token", e);
+        }
+    }
+    // -----------------------------------
+
     const fetchCourses = async () => {
         setLoading(true);
         try {
-        
             const response = await api.get(`/course/search?page=${page}&pageSize=${pageSize}`);
             setCourses(response.data.data);
             setTotalPages(response.data.totalPages);
@@ -39,7 +55,6 @@ const Dashboard = () => {
     useEffect(() => {
         fetchCourses();
     }, [page]);
-
 
     const handleDelete = async (id) => {
         if (window.confirm('¿Seguro que quieres eliminar este curso?')) {
@@ -61,7 +76,6 @@ const Dashboard = () => {
             }
             fetchCourses();
         } catch (err) {
-            
             alert(err.response?.data?.message || 'Error al cambiar estado');
         }
     };
@@ -97,42 +111,82 @@ const Dashboard = () => {
                 </Col>
             </Row>
 
+            {/* --- SECCIÓN DE MÉTRICAS (PUNTO EXTRA VISUAL) --- */}
+            {/* Solo se muestra si hay cursos cargados para evitar flash vacíos */}
+            {!loading && courses.length > 0 && (
+                <Row className="mb-4">
+                    <Col md={4}>
+                        <Card className="text-center shadow-sm border-0 bg-light">
+                            <Card.Body>
+                                <h6 className="text-muted">Cursos en Pantalla</h6>
+                                <h2 className="text-primary fw-bold">{courses.length}</h2>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col md={4}>
+                        <Card className="text-center shadow-sm border-0 bg-light">
+                            <Card.Body>
+                                <h6 className="text-muted">Publicados</h6>
+                                <h2 className="text-success fw-bold">
+                                    {courses.filter(c => c.status === 1).length}
+                                </h2>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                    <Col md={4}>
+                        <Card className="text-center shadow-sm border-0 bg-light">
+                            <Card.Body>
+                                <h6 className="text-muted">Borradores</h6>
+                                <h2 className="text-secondary fw-bold">
+                                    {courses.filter(c => c.status === 0).length}
+                                </h2>
+                            </Card.Body>
+                        </Card>
+                    </Col>
+                </Row>
+            )}
+            {/* ------------------------------------------------ */}
+
             {error && <Alert variant="danger">{error}</Alert>}
 
             {loading ? (
-                <div className="text-center">Cargando...</div>
+                <div className="text-center mt-5">
+                    <div className="spinner-border text-primary" role="status"></div>
+                    <p>Cargando datos...</p>
+                </div>
             ) : (
                 <>
-                    <Table striped bordered hover responsive>
+                    <Table striped bordered hover responsive className="shadow-sm">
                         <thead className="table-dark">
                             <tr>
                                 <th>Título</th>
                                 <th>Estado</th>
-                                <th>Lecciones</th>
+                                <th>Contenido</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody>
                             {courses.length === 0 ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center">No hay cursos disponibles</td>
+                                    <td colSpan="4" className="text-center p-4">
+                                        No se encontraron cursos disponibles.
+                                    </td>
                                 </tr>
                             ) : (
                                 courses.map((course) => (
                                     <tr key={course.id}>
-                                        <td>{course.title}</td>
-                                        <td>
+                                        <td className="align-middle fw-semibold">{course.title}</td>
+                                        <td className="align-middle">
                                             <Badge bg={course.status === 1 ? 'success' : 'secondary'}>
                                                 {course.status === 1 ? 'Publicado' : 'Borrador'}
                                             </Badge>
                                         </td>
-                                        <td>
-                                            {/* Botón para ir a ver lecciones (siguiente paso) */}
+                                        <td className="align-middle">
                                             <Button variant="link" size="sm" onClick={() => navigate(`/course/${course.id}/lessons`)}>
                                                 Ver Lecciones
                                             </Button>
                                         </td>
-                                        <td>
+                                        <td className="align-middle">
                                             <Button 
                                                 variant="outline-primary" 
                                                 size="sm" 
@@ -149,13 +203,17 @@ const Dashboard = () => {
                                             >
                                                 {course.status === 1 ? 'Despublicar' : 'Publicar'}
                                             </Button>
-                                            <Button 
-                                                variant="outline-danger" 
-                                                size="sm"
-                                                onClick={() => handleDelete(course.id)}
-                                            >
-                                                Eliminar
-                                            </Button>
+                                            
+                                            {/* Ocultar botón eliminar si NO es admin */}
+                                            {isAdmin && (
+                                                <Button 
+                                                    variant="outline-danger" 
+                                                    size="sm"
+                                                    onClick={() => handleDelete(course.id)}
+                                                >
+                                                    Eliminar
+                                                </Button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))
@@ -164,7 +222,7 @@ const Dashboard = () => {
                     </Table>
 
                     {/* Paginación */}
-                    <div className="d-flex justify-content-center mt-3">
+                    <div className="d-flex justify-content-center mt-4">
                         <Pagination>
                             <Pagination.Prev 
                                 onClick={() => setPage(p => Math.max(1, p - 1))} 
