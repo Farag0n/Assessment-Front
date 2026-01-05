@@ -4,7 +4,7 @@ import api from '../api/axiosConfig';
 import { AuthContext } from '../context/AuthContext';
 import CourseModal from '../components/CourseModal';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from "jwt-decode"; // <--- Importante para leer el rol
+import { jwtDecode } from "jwt-decode";
 
 const Dashboard = () => {
     const [courses, setCourses] = useState([]);
@@ -13,7 +13,7 @@ const Dashboard = () => {
     
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
-    const pageSize = 5; // Puedes subir esto a 10 si quieres ver más datos para las métricas
+    const pageSize = 5;
 
     const [showModal, setShowModal] = useState(false);
     const [editingCourse, setEditingCourse] = useState(null);
@@ -21,15 +21,12 @@ const Dashboard = () => {
     const { logout } = useContext(AuthContext);
     const navigate = useNavigate();
 
-    // --- LÓGICA DE ROL (PUNTO EXTRA) ---
     const token = localStorage.getItem('token');
     let isAdmin = false;
     if (token) {
         try {
             const decoded = jwtDecode(token);
-            // El backend suele enviar el rol en "role" o en una URL de esquema xml
             const role = decoded.role || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
-            // Asumimos que 0 es Admin (según tu Register.jsx) o el string "Admin"
             isAdmin = role === 0 || role === "0" || role === "Admin";
         } catch (e) {
             console.error("Error al leer token", e);
@@ -187,6 +184,7 @@ const Dashboard = () => {
                                             </Button>
                                         </td>
                                         <td className="align-middle">
+                                            {isAdmin && (
                                             <Button 
                                                 variant="outline-primary" 
                                                 size="sm" 
@@ -195,6 +193,7 @@ const Dashboard = () => {
                                             >
                                                 Editar
                                             </Button>
+                                            )}
                                             <Button 
                                                 variant={course.status === 1 ? "outline-warning" : "outline-success"} 
                                                 size="sm" 
