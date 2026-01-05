@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import { useState, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import api from '../api/axiosConfig';
@@ -16,13 +15,11 @@ const Login = () => {
         e.preventDefault();
         setError('');
         try {
-            // POST a tu endpoint de login
             const response = await api.post('/auth/login', { email, password });
             
-            // Guardamos tokens usando el Context
             login(response.data.accessToken, response.data.refreshToken);
             
-            navigate('/courses'); // Redirigir al dashboard
+            navigate('/courses');
         } catch (err) {
             setError('Credenciales inválidas o error de servidor');
             console.error(err);

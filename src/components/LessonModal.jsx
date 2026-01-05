@@ -23,14 +23,11 @@ const LessonModal = ({ show, handleClose, lessonToEdit, courseId, refreshLessons
 
         try {
             if (lessonToEdit) {
-                // Editar
                 await api.put(`/lesson/${lessonToEdit.id}`, {
                     id: lessonToEdit.id,
                     title: title,
-                    // order se mantiene igual, no lo enviamos
                 });
             } else {
-                // Crear
                 await api.post('/lesson', { 
                     courseId: courseId, 
                     title: title 

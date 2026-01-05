@@ -8,7 +8,7 @@ const Register = () => {
     const [email, setEmail] = useState('');
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState(1); // 1 = User por defecto (0 es Admin)
+    const [role, setRole] = useState(1);
     const [error, setError] = useState('');
     
     const { login } = useContext(AuthContext);
@@ -18,8 +18,6 @@ const Register = () => {
         e.preventDefault();
         setError('');
         try {
-            // El backend espera: { email, username, password, role }
-            // Role es un enum: 0 (Admin), 1 (User)
             const response = await api.post('/auth/register', { 
                 email, 
                 username, 
@@ -27,7 +25,6 @@ const Register = () => {
                 role: parseInt(role) 
             });
             
-            // Auto-login al registrarse
             login(response.data.accessToken, response.data.refreshToken);
             navigate('/courses'); 
         } catch (err) {

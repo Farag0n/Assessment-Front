@@ -1,4 +1,3 @@
-// src/components/CourseModal.jsx
 import { useState, useEffect } from 'react';
 import { Modal, Button, Form, Alert } from 'react-bootstrap';
 import api from '../api/axiosConfig';
@@ -8,7 +7,7 @@ const CourseModal = ({ show, handleClose, courseToEdit, refreshCourses }) => {
     const [error, setError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Si hay un curso para editar, llenamos el campo
+    
     useEffect(() => {
         if (courseToEdit) {
             setTitle(courseToEdit.title);
@@ -25,14 +24,12 @@ const CourseModal = ({ show, handleClose, courseToEdit, refreshCourses }) => {
 
         try {
             if (courseToEdit) {
-                // Editar
                 await api.put(`/course/${courseToEdit.id}`, {
                     id: courseToEdit.id,
                     title: title,
                     status: courseToEdit.status
                 });
             } else {
-                // Crear
                 await api.post('/course', { title });
             }
             refreshCourses(); // Recargar la tabla

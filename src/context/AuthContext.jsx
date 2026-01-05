@@ -1,4 +1,3 @@
-// src/context/AuthContext.jsx
 import { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
@@ -8,10 +7,8 @@ export const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Verificar si hay sesión activa al recargar la página
         const token = localStorage.getItem('token');
         if (token) {
-            // Aquí podrías decodificar el token para sacar el nombre/rol
             setUser({ token }); 
         }
         setLoading(false);

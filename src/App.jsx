@@ -1,11 +1,10 @@
-// src/App.jsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, AuthContext } from './context/AuthContext';
 import { useContext } from 'react';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import Lessons from './pages/Lessons'; // <--- IMPORTAR LA VISTA QUE CREAREMOS AHORA
+import Lessons from './pages/Lessons';
 
 const PrivateRoute = ({ children }) => {
     const { user, loading } = useContext(AuthContext);
@@ -21,7 +20,6 @@ function App() {
                 <Route path="/" element={<Login />} />
                 <Route path="/register" element={<Register />} /> 
                 
-                {/* Ruta Dashboard */}
                 <Route 
                     path="/courses" 
                     element={
@@ -31,8 +29,6 @@ function App() {
                     } 
                 />
 
-                {/* NUEVA RUTA: Gestión de Lecciones */}
-                {/* :courseId es un parámetro dinámico que usaremos para saber qué curso cargar */}
                 <Route 
                     path="/course/:courseId/lessons" 
                     element={

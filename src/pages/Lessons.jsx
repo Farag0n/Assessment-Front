@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Container, Table, Button, Alert, Badge } from 'react-bootstrap';
 import api from '../api/axiosConfig';
-import LessonModal from '../components/LessonModal'; // Lo creamos en el paso 3
+import LessonModal from '../components/LessonModal';
 
 const Lessons = () => {
-    const { courseId } = useParams(); // Obtenemos el ID de la URL
+    const { courseId } = useParams();
     const navigate = useNavigate();
     
     const [lessons, setLessons] = useState([]);
@@ -13,18 +13,15 @@ const Lessons = () => {
     const [error, setError] = useState('');
     const [courseTitle, setCourseTitle] = useState('');
 
-    // Modal State
     const [showModal, setShowModal] = useState(false);
     const [editingLesson, setEditingLesson] = useState(null);
 
     const fetchLessons = async () => {
         setLoading(true);
         try {
-            // 1. Obtener info del curso para mostrar el título
             const courseRes = await api.get(`/course/${courseId}/summary`);
             setCourseTitle(courseRes.data.title);
 
-            // 2. Obtener lecciones
             const lessonsRes = await api.get(`/lesson/course/${courseId}`);
             setLessons(lessonsRes.data);
             setError('');
@@ -40,9 +37,8 @@ const Lessons = () => {
         fetchLessons();
     }, [courseId]);
 
-    // --- LÓGICA DE REORDENAMIENTO (Requisito Clave) ---
     const handleReorder = async (lesson, direction) => {
-        // direction: -1 (subir), 1 (bajar)
+        
         const newOrder = lesson.order + direction;
         
         try {
@@ -50,7 +46,7 @@ const Lessons = () => {
                 lessonId: lesson.id,
                 newOrder: newOrder
             });
-            fetchLessons(); // Recargar para ver el nuevo orden
+            fetchLessons();
         } catch (err) {
             alert(err.response?.data?.message || 'No se puede mover en esa dirección');
         }
@@ -109,17 +105,16 @@ const Lessons = () => {
                                 <td className="text-center fw-bold">{lesson.order}</td>
                                 <td>{lesson.title}</td>
                                 <td>
-                                    {/* Botones de Reordenar */}
                                     <Button 
                                         variant="light" size="sm" className="me-1"
-                                        disabled={lesson.order === 1} // No puede subir más
+                                        disabled={lesson.order === 1}
                                         onClick={() => handleReorder(lesson, -1)}
                                     >
                                         ⬆️
                                     </Button>
                                     <Button 
                                         variant="light" size="sm" className="me-3"
-                                        disabled={index === lessons.length - 1} // No puede bajar más (visual check)
+                                        disabled={index === lessons.length - 1}
                                         onClick={() => handleReorder(lesson, 1)}
                                     >
                                         ⬇️

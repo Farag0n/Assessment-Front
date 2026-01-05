@@ -1,4 +1,3 @@
-// src/pages/Dashboard.jsx
 import { useState, useEffect, useContext } from 'react';
 import { Container, Table, Button, Badge, Row, Col, Alert, Pagination } from 'react-bootstrap';
 import api from '../api/axiosConfig';
@@ -11,12 +10,10 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     
-    // Paginación
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(0);
     const pageSize = 5;
 
-    // Modal State
     const [showModal, setShowModal] = useState(false);
     const [editingCourse, setEditingCourse] = useState(null);
 
@@ -26,7 +23,7 @@ const Dashboard = () => {
     const fetchCourses = async () => {
         setLoading(true);
         try {
-            // Llamada al endpoint de Search con paginación
+        
             const response = await api.get(`/course/search?page=${page}&pageSize=${pageSize}`);
             setCourses(response.data.data);
             setTotalPages(response.data.totalPages);
@@ -41,9 +38,9 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchCourses();
-    }, [page]); // Recargar cuando cambie la página
+    }, [page]);
 
-    // Manejadores de Acciones
+
     const handleDelete = async (id) => {
         if (window.confirm('¿Seguro que quieres eliminar este curso?')) {
             try {
@@ -57,14 +54,14 @@ const Dashboard = () => {
 
     const handlePublishToggle = async (course) => {
         try {
-            if (course.status === 1) { // 1 = Published
+            if (course.status === 1) {
                 await api.patch(`/course/${course.id}/unpublish`);
             } else {
                 await api.patch(`/course/${course.id}/publish`);
             }
             fetchCourses();
         } catch (err) {
-            // Aquí capturamos la regla de negocio del backend (ej: "No tiene lecciones")
+            
             alert(err.response?.data?.message || 'Error al cambiar estado');
         }
     };
